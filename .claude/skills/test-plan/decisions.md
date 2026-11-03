@@ -29,22 +29,26 @@ A user wants to know one thing: **"Can I get this name?"** At Wix there are four
 Source: the task description. Domain basics are information, not requirements.
 Risk = impact × likelihood. Priority = risk, unless the override rule applies (then the reason says so). Scale: H / M / L.
 **Override rule:** the core business path (answering "Can I get this name?") is H priority regardless of likelihood.
-Likelihood is an **Assumption** until checked against `ARCHITECTURE.md` (gate 1).
+Likelihood was checked against `ARCHITECTURE.md` (gate 1); each Reason names the finding it rests on. What `ARCHITECTURE.md` labels **Assumption** stays an assumption here.
 
 | # | Acceptance criterion | Impact | Likelihood | Risk | Priority | Reason |
 |---|---|---|---|---|---|---|
-| AC1 | For a valid full domain name, each door gives a clear answer: can get it, or can't | H | L | M | H | Core business value: it is the product's one promise. Override rule applies — likelihood is low because the path is heavily used, but if it breaks, nothing else matters. |
-| AC2 | All doors give the same availability answer for the same name at the same moment | H | M | H | H | A wrong answer loses a sale or breaks trust at checkout; separate doors may use separate services or caches. |
+| AC1 | For a valid full domain name, each door except the generator (see Q2) gives a clear answer: can get it, or can't | H | L | M | H | Core business value: it is the product's one promise. Override rule applies — likelihood is low because the path is heavily used, but if it breaks, nothing else matters. |
+| AC2 | All doors give the same availability answer for the same name at the same moment | H | L | M | H | A wrong answer loses a sale or breaks trust at checkout, so priority stays H above the risk. Likelihood is lower: in the HARs, all three web doors call the same route path, `/domain-search/v2/check-domain-availability`, and get the same body as the public API (`ARCHITECTURE.md`, Relations). **Assumption:** one service sits behind them; not proven. Remaining risk sits in routes that are not shared: the storefront's `bulk/domain-availabilities/check` for other extensions, the WHOIS double check (entry page + results page), the generator's suggestion list. |
 | AC3 | A name in a TLD Wix doesn't sell is shown as unavailable or not purchasable | M | M | M | M | The user is told "yes" and fails later; TLD lists can drift between doors. |
-| AC5 | Generator suggestions shown as available are available according to the API | M | M | M | M | A taken suggestion frustrates the user; suggestions are generated and may be pre-computed or cached. |
-| AC6 | WHOIS shows a registered name as registered and an unregistered name as not registered | M | L | L | L | An information door, not a purchase path; it reads registry data directly. |
+| AC5 | Every domain the generator suggests is available according to the API | M | M | M | M | The generator shows no availability, so listing a domain implies "you can get it" (`ARCHITECTURE.md` §2: no availability call in flows 1–2; generator note flow 1, step 6). A taken suggestion frustrates the user. The docs call suggestions "available for purchase" yet advise re-checking them (`docs/api-reference.md`, Suggest Domains). |
+| AC6 | WHOIS shows a registered name as registered and an unregistered name as not registered | H | L | M | M | The registered / free answer comes from Wix's availability check on the entry page, not from the registry. A free name goes to the storefront's `/domain/result` page (purchase path); a taken one to `/domain/result/whois`. Registry (RDAP) data only fills in the details afterwards (`ARCHITECTURE.md` §3). A wrong "free" sends the user into the purchase path, hence impact H. Likelihood L: same check as AC1. |
 
 (AC4 premium and AC7 API contract were removed: Domain basics are information, not requirements.)
 
 ## Aspects
 1. **Functionality** — the four doors answer "is this name available?" and the answers are consistent. Includes AC2, AC5 and input validation.
 2. **Schema validation** — public API only, from `docs/api-reference.md` (not the web doors' internal calls).
-3. **Integration** — only dependencies shown in `ARCHITECTURE.md`.
+3. **Integration** — only dependencies shown in `ARCHITECTURE.md`. Failure scenarios, one per web door, are simulated by failing the call in the browser (Playwright `page.route`: abort / 503). This tests the page's error handling, not a real backend outage.
+   - Storefront and WHOIS: `check-domain-availability` fails → the door must not show the name as available, nor send the user on toward purchase.
+   - WHOIS: the external RDAP servers, `parse-rdap` or `structured-domain-info/whois` fail → no invented registration data, and the name is not shown as unregistered. The observed `500 UNABLE_TO_LOOKUP_WHOIS` (`whois-flow3`) is the real-world case.
+   - Generator (optional): `suggest-domains` fails.
+   - Expected error text: `<TBD in exploration>`. Public API: out; we can't make the real service fail.
 4. **Security** — API key cases (missing / invalid key); the key never appears in web door traffic. No brute force.
 5. **Concurrency** — considered, mostly not implemented (needs purchases or parallel load). Executable slice: the same name checked several times in a row, and on two doors close together.
 
@@ -60,10 +64,10 @@ Likelihood is an **Assumption** until checked against `ARCHITECTURE.md` (gate 1)
 | # | Open question | Rating | Decision |
 |---|---|---|---|
 | Q1 | What should a door do with `GOOGLE.COM`, ` google.com `, `www.google.com`, `https://google.com`: normalize or reject? | Critical | Normalization is out of scope. Validation of invalid input is in scope. |
-| Q2 | The generator takes a business name, not a domain. What is "the name" in AC1 for that door? | Critical | The generator's first suggestion (observed) is used as the name for AC1 tests. It is generated, so tests read it at run time. |
-| Q3 | For a TLD Wix doesn't sell: API "unavailable" or error? Storefront "not available" or "we don't sell this"? | Non-critical | Placeholder `<error message: TBD in exploration>`. The API docs list `400 INVALID_DOMAIN` for a "missing or invalid" TLD (`docs/api-reference.md`). |
+| Q2 | The generator takes a business name, not a domain. What is "the name" in AC1 for that door? | Critical, **answered** | The generator never answers "can I get it" for a name: no availability call or indication in flows 1–2 (`ARCHITECTURE.md` §2). So the generator is out of AC1 and covered by AC5. Its suggestions are generated, so tests read them at run time. |
+| Q3 | For a TLD Wix doesn't sell: API "unavailable" or error? Storefront "not available" or "we don't sell this"? | Non-critical, **partly answered** | **Reserved TLD (`mybakery.test`), observed:** API `400 INVALID_DOMAIN`, "failed to extract root domain from mybakery.test, a tld is missing or invalid" (`docs/scenarios/api.md` row 4). Storefront: ".test domains aren’t available. Explore other options below or view available extensions." (storefront note, flow 3). **Real TLD Wix doesn't sell:** still open, placeholder `<error message: TBD in exploration>`. |
 | Q4 | What does "the same moment" in AC2 mean? | Non-critical | Checks run one after another (< 1 min). **Assumption:** the test domain is not sold during the test. |
-| Q5 | What should WHOIS show for invalid input or a TLD Wix doesn't sell? | Non-critical | Invalid input: placeholder `<error message: TBD in exploration>`. Unsold TLD: **Assumption:** WHOIS behaves as for any TLD (registered → redacted details, unregistered → not registered); verify in exploration. |
+| Q5 | What should WHOIS show for invalid input or a TLD Wix doesn't sell? | Non-critical, **partly answered** | **Reserved TLD (`mybakery.test`), observed:** the entry-page check returns 400; `/domain/result/whois` gets `500 UNABLE_TO_LOOKUP_WHOIS` from `structured-domain-info/whois`, then the flow moves to the storefront's `/domain/result` with ".test domains aren’t available…" (`whois-flow3`; whois note, flow 3). **Other invalid input and real unsold TLD:** still open, placeholder `<error message: TBD in exploration>`. |
 | Q6 | When doors disagree, which one is right? | Non-critical | Any disagreement **between Wix doors** is a bug. Severity is decided manually against a third party (another door, ICANN). Wix vs ICANN differences are not automatically bugs (see AC3). |
 
 ## Input validation
@@ -82,7 +86,7 @@ Likelihood is an **Assumption** until checked against `ARCHITECTURE.md` (gate 1)
 |---|---|
 | empty | no input |
 | spaces only | no input after trimming |
-| `mybakery` (API only) | no TLD — the API requires one; storefront / generator may treat it as a keyword |
+| `mybakery` (API only) | no TLD — the API requires one (observed: `400 INVALID_DOMAIN`, `docs/scenarios/api.md` row 3); storefront / generator may treat it as a keyword |
 | `com` / `.com` | TLD only, no label |
 | `192.168.1.1` | IP address, never registrable |
 | 63-character label + `.com` | label length, upper boundary (valid) |

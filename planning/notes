@@ -1,0 +1,3 @@
+Notes for findings:
+1. A field value missing from the docs of public api. Non-premium names come back with premiumType: "UNKNOWN_PREMIUM_TYPE", which isn't one of the values the docs list. Taken from tests in api.md
+Doc gap: every response returns premiumType: "UNKNOWN_PREMIUM_TYPE" for non-premium names: web HARs and api.md. The docs list only FIRST_YEAR_ONLY / FIRST_YEAR_AND_RENEWAL. This also settles the open point in api-reference.md: the premium fields are present, not omitted.

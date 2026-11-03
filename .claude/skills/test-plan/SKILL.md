@@ -13,7 +13,7 @@ Sequential, human in the loop: never move past a gate without my explicit approv
 - [decisions.md](decisions.md) — scope, acceptance criteria, open questions, input validation, oracles.
 - `docs/api-reference.md` — the only source for API route, method, headers, parameters, response fields and errors.
 - `docs/domain-basics.md` — expected behaviour. Expected results must not contradict it.
-- `docs/scenarios/*.md` — recorded UI flows and network calls.
+- `docs/scenarios/*.md` — recorded UI flows and network calls, api calls.
 
 ## Flow
 1. Read all inputs.

@@ -4,7 +4,7 @@ Run after the scenario notes in `docs/scenarios/` are filled in from the HAR rec
 
 ## 1. Draft
 
-> Read `docs/scenarios/storefront.md`, `docs/scenarios/generator.md`, `docs/scenarios/whois.md` , `docs/api-reference.md` and HAR files for the scenarios in folder `docs\har\raw`. Use only these files.
+> Read `docs/scenarios/storefront.md`, `docs/scenarios/generator.md`, `docs/scenarios/whois.md` , `docs/api-reference.md`, `docs\scenarios\api.md` and HAR files for the scenarios in folder `docs\har\raw`. Use only these files.
 >
 > The HAR files are the primary source for calls, their order, status, pages visited, response fields and tech clues; the scenario notes can miss calls and observations. Use the notes for what appeared on screen. When a note and a HAR disagree, follow the HAR and flag the gap.
 > Read the HARs only with a script that prints method, route without query string, status, page and response fields. Never print headers, cookies, tokens, session values or query strings.
