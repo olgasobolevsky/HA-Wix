@@ -144,3 +144,126 @@
   - Error text `<TBD in exploration>`.
 
 **My verdict:**
+
+## 2026-11-03: TEST_PLAN.md: gate 1 and API door
+
+**Prompt:** "create test-plan" (test-plan skill), then "approve" (gate 1), then API door feedback: verified responses for API-04 and API-08; "API-13 - should be removed looks redundant as API-02".
+
+**Outcome:**
+- Gate 1: AC1 and AC3 values unchanged. Their reasons in `decisions.md` now cite `ARCHITECTURE.md`.
+- `TEST_PLAN.md` created. Six sections copied verbatim from `decisions.md` by a script. Oracles and Test data not copied (not in the skill's list); asked the user.
+- API door: 15 scenarios written (API-01..12, 14..16). API-13 dropped; the number stays unused.
+- API-04 and API-08 expected results set from the user's verified responses. Recorded as `api.md` rows 5–6. The API-08 input is not recorded, so "same for every input" is marked Assumption.
+
+**My verdict:**
+
+## 2026-11-03: TEST_PLAN.md: WHOIS door
+
+**Prompt:** WHOIS review over two turns. Asked why WHOIS-06 and WHOIS-11 exist; remove WHOIS-12; WHOIS-15/16/17 out of scope; WHOIS-19 looks like WHOIS-01; "show me your comments before you change". Then: merge 04–06 as suggested, keep WHOIS-11, remove WHOIS-18, merge WHOIS-19.
+
+**Outcome:**
+- Explained 06 (invalid input on a page that routes by the answer) and 11 (two checks per search; listed in the AC2 reason).
+- Explained that 19 differs from 01: a registered name in an unsold TLD.
+- Wrote 10 WHOIS scenarios: 01, 02, 03 (data-driven invalid input), 07, 08, 09, 10, 11, 13 (tagged AC2+AC3 to keep an AC2 negative), 14 (unsold TLD with two names, AC3+AC6).
+- Removed numbers listed with reasons in the plan.
+- Flagged: removing WHOIS-18 leaves the WHOIS RDAP bullet in the Integration aspect (decisions.md and TEST_PLAN.md) without a scenario.
+
+**My verdict:**
+
+## 2026-11-03: Taken-message check
+
+**Prompt:** "STORE-01 - should take in consideration that the message shown may not be the same. It should check that google.com in the message and some key words [registered, taken, unavailable]. I saw it in my observatins", then "lets apply it to all that kind of checks".
+
+**Outcome:**
+- Added a "Taken-message check" rule at the top of the Scenarios section in `TEST_PLAN.md`: the message contains the searched name plus one keyword, case-insensitive, scoped to the message element.
+- WHOIS-01, -09 and -18 now use the rule.
+- In the storefront table (not yet approved or written), STORE-01, -06 and -07 will use it.
+- The source for "the wording varies" is the user's observation; it's not yet recorded in the scenario notes.
+
+**My verdict:**
+
+## 2026-11-03: TEST_PLAN.md: Storefront door
+
+**Prompt:** Storefront review: write out the STORE-03 data set; STORE-06 redundant; STORE-09 out of scope; STORE-12 similar to STORE-02; drop STORE-13; "discuss before you edit". Then: keep STORE-09 as manual, write out the API-11 / API-12 references in place, don't add STORE-14.
+
+**Outcome:**
+- Pushed back on STORE-09: the AC2 reason names the bulk check. It is kept as manual.
+- Explained that STORE-12 differs from STORE-02 but depends on STORE-09; dropped.
+- Flagged that dropping STORE-13 leaves the "key never in web traffic" security clause without a scenario. No answer yet; aspect text unchanged.
+- Wrote the storefront table: STORE-01..05, 07..11.
+- Wrote out the API references in place in WHOIS-13/14 and STORE-10/11.
+
+**My verdict:**
+
+## 2026-11-03: TEST_PLAN.md: Business Name Generator door
+
+**Prompt:** GEN review: check the first 10 suggestions in GEN-01, -02 and -04; GEN-03 assumed covered ("if available and suggested, it should be a Wix TLD"); GEN-05 maybe not needed; "lets discuss". Then "apply".
+
+**Outcome:**
+- Added a "Suggestion check" rule: the first 10 suggestions shown (or all, if fewer) must be `available: true` in the API. The page requests 10 per HAR.
+- GEN-03 dropped. The user's reasoning is recorded as an Assumption tied to API-12 (Q3), with a condition to bring GEN-03 back.
+- GEN-05 dropped: `maxlength` is markup, not a requirement.
+- Written: GEN-01, 02, 04, 06, 07, 08. AC3 has 1 scenario.
+- Gate 2 complete for all four doors.
+
+**My verdict:**
+
+## 2026-11-03: Detailed API test cases
+
+**Prompt:** "detail all the API scenarios" (gate 3).
+
+**Outcome:**
+- Added "Detailed test cases → API door" to `TEST_PLAN.md`: 15 cases (API-01..12, 14..16). Each has preconditions and a steps table, with expected results cited from `api.md` rows 1–6 and `api-reference.md`.
+- Common block: request, auth header, key handling, URL encoding, random free name.
+- `<TBD in exploration>` or Assumption: API-06 / 07 / 15 / 16 error codes, and API-04's form of the missing domain.
+- Fixed a misplaced sentence: an earlier edit had moved the tail of the WHOIS AC6 line to the end of the file.
+
+**My verdict:**
+
+## 2026-11-03: Self-contained API test cases
+
+**Prompt:** "I don't want 'Common to all API cases', each detaile test case should hold all the details needed for test"
+
+**Outcome:**
+- Removed the shared block. Each of the 15 API cases now states its own endpoint, auth header, key handling, encoding and random-name rule in Preconditions, and spells out the full request in its steps.
+- API-10 rewritten to run its own API calls (4 steps) instead of depending on API-01 / API-02.
+
+**My verdict:**
+
+## 2026-11-03: Detailed WHOIS-01, WHOIS-02
+
+**Prompt:** "add details to test cases: WHOIS-01, WHOIS-02"
+
+**Outcome:**
+- Added "Detailed test cases → WHOIS door" with two self-contained UI cases. Labels, URLs and hooks come from `whois.md` flows 1–2 and the HARs via `ARCHITECTURE.md`.
+- WHOIS-01: 4 steps. The taken-message check is restated inside the case.
+- WHOIS-02: 6 steps. The hero card is found by its visible `<h1>` (the `hero-card-title` hook is on a hidden copy); asserts the "Available now!" badge and the "Make It Yours" button without clicking it.
+- The cookie banner is left open, as in the recordings.
+
+**My verdict:**
+
+## 2026-11-03: Playwright project and API-01
+
+**Prompt:** "init the playwright project and automate API-01" (playwright skill, arg API-01)
+
+**Outcome:**
+- `automation/`: npm project with `@playwright/test` 1.56.1 and `@types/node`. `npm test` runs `playwright test`.
+- `playwright.config.ts`:
+  - Loads `automation/.env` with Node's `process.loadEnvFile` (no dotenv).
+  - Projects `api-setup` (fails clearly when `WIX_API_KEY` is missing), `api` (baseURL `https://www.wixapis.com`, key via `extraHTTPHeaders`) and `web` (Chromium, `https://www.wix.com`).
+  - No retries; trace retain-on-failure, screenshot only-on-failure.
+- `tests/api/api.spec.ts`: API-01, 2 steps worded as in the plan. Status asserted before the body.
+- Run once: passed (api-setup + API-01, 3.4 s).
+
+**My verdict:**
+
+## 2026-11-03: Automate API-02
+
+**Prompt:** "automate also the API-02"
+
+**Outcome:**
+- Added `tests/helpers/random-name.ts`: `randomLabel()`, 16 random lowercase letters from `node:crypto`, fresh per call.
+- Added API-02 to `tests/api/api.spec.ts`: `<random>.com` → status 200, then `domain` equals the input and `available` is `true`. Steps worded as in the plan.
+- Run once (`-g API-02`): passed.
+
+**My verdict:**

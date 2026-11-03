@@ -1,7 +1,7 @@
 import requests
 
 API_KEY = ""
-DOMAIN = "mybakery.test"  # e.g. google.com
+DOMAIN = "goo_gle.com"  # e.g. google.com
 
 response = requests.get(
     "https://www.wixapis.com/domain-search/v2/check-domain-availability",
