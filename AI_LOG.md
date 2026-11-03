@@ -267,3 +267,120 @@
 - Run once (`-g API-02`): passed.
 
 **My verdict:**
+
+## 2026-11-03: FINDINGS.md table
+
+**Prompt:** "Lets work on FINDINGS.md - Iwant to add the a table with number, door, stesps to reproduce, Actual resuls, expected result, Severity and priority"
+
+**Outcome:**
+- Created `FINDINGS.md` with the requested columns, plus an Evidence column (the assignment asks for evidence).
+- Five findings, all low severity, none a wrong availability answer:
+  - F1: WHOIS `structured-domain-info/whois` 500 for `.test` (L/M).
+  - F2: undocumented `UNKNOWN_PREMIUM_TYPE` (L/M).
+  - F3: undocumented validation errors `FORMAT` / `REQUIRED_FIELD` (L/M).
+  - F4: `getUserDetails` 404 on page-relative path (L/L).
+  - F5: `undefined-item-N` data-hooks (L/L).
+- Added a short defence of each severity / priority, and an Observations section (label mismatch, duplicate checks, hidden `hero-card-title`).
+- Corrected F4 after re-checking the HAR summary: only `manage.wix.com` returns 200 on WHOIS.
+
+**My verdict:**
+
+## 2026-11-03: FINDINGS.md trimmed
+
+**Prompt:** "leave only 2 first findings and remove all the explanations besides the table"
+
+**Outcome:** `FINDINGS.md` reduced to the title and the table with F1 (WHOIS 500) and F2 (`UNKNOWN_PREMIUM_TYPE`). The intro, the severity / priority reasons and the Observations section were removed.
+
+**My verdict:**
+
+## 2026-11-03: FINDINGS.md: results-page search risk
+
+**Prompt:** "Add also consern about this: as found in eploratory , the pages with reslts (suggestions) have their own serach for domain availiability and the concern is that it is not tested by the test plan produces"
+
+**Outcome:**
+- Added F3 (risk) to the table: the results pages have their own domain search; `TEST_PLAN.md` covers only searches from the entry pages.
+- Severity H (a wrong answer there loses a sale), priority M. Same call is marked Assumption.
+- Evidence is the user's exploratory observation; it isn't recorded in `docs/scenarios/` or the HARs.
+
+**My verdict:**
+
+## 2026-11-03: F3 priority raised
+
+**Prompt:** "remove the Assumption and make the priority high cause it is missing coverage for functionality under test by this test plan"
+
+**Outcome:** F3 in `FINDINGS.md`: removed the Assumption sentence about the call it uses; priority M → H.
+
+**My verdict:**
+
+## 2026-11-03: README.md draft
+
+**Prompt:** `prompts/readme.md`, summarised: draft README from TEST_PLAN, FINDINGS, ARCHITECTURE, package.json, the config and the tests. Sections: time spent (ask), how to run, what is automated and why (ask why), another week (ask), quality strategy in exactly 5 lines, repo map. No generic advice, no keys.
+
+**Outcome:**
+- Drafted `README.md`.
+- Run commands come from `package.json` and `playwright.config.ts`: `npm ci`, `npx playwright install chromium`, `.env` from `.env.example`, `npm test`, `npm test -- --grep @api`.
+- Automated cases: API-01, API-02.
+- 5-line strategy, each line tied to a repo file.
+- Repo map: one row per top-level item.
+- Placeholders left for time spent, why these tests, and another week; asked the user.
+
+**My verdict:**
+
+## 2026-11-03: README time spent
+
+**Prompt:** "Time spent - 5 hours preparations and prerequisites, 3 our the task"
+
+**Outcome:** README section 1 filled in: the task about 3 hours, prerequisites about 5 hours. The placeholder was removed.
+
+**My verdict:**
+
+## 2026-11-03: README: what is automated and why
+
+**Prompt:** "About what was automated: only 2 tests due to luck of time. API test as was asked in assignment first"
+
+**Outcome:**
+- README section 3 filled in: two cases for lack of time; the API first because the assignment requires it and it's the reference for cross-door checks; API-01 / 02 are the basic taken / free answers.
+- Added an honest line that no web door is automated yet, with WHOIS-01 / 02 as next.
+- Flagged the assignment's "at least one web door" requirement.
+
+**My verdict:**
+
+## 2026-11-03: README section 3 trimmed
+
+**Prompt:** "remove the last 2 points"
+
+**Outcome:** Removed the "API-01 / 02 are the basic answers" and "no web door yet" lines from README section 3.
+
+**My verdict:**
+
+## 2026-11-03: README: another week
+
+**Prompt:** "What I'd do with another week: 1. clear out the open questions and assumptions in architecture.md and test-plan.md. 2. Include in test plan missing coverage for availiability check on results page. 3. Find missind data for tests, like TLD that Wix doesn't sell 3. Make the test plan skill reusable and not specific to one task."
+
+**Outcome:** README section 4 written as four items, each linked to repo files: ARCHITECTURE / TEST_PLAN assumptions; FINDINGS F3; unsold-TLD data for API-12 / WHOIS-14 / STORE-11; the test-plan skill. Renumbered the duplicate 3 → 4. No TODOs left.
+
+**My verdict:**
+
+## 2026-11-03: README strategy line 2 removed
+
+**Prompt:** "remove 2. from Quality strategy for Wix Domains, in 5 lines"
+
+**Outcome:** Removed strategy line 2 (test where the doors don't share the check) and renumbered to 4 lines; the heading still says "in 5 lines" (flagged).
+
+**My verdict:**
+
+## 2026-11-03: README strategy heading
+
+**Prompt:** "no, remove the 5 lines wording"
+
+**Outcome:** README section 5 heading is now "Quality strategy for Wix Domains".
+
+**My verdict:**
+
+## 2026-11-03: README strategy line 4 removed
+
+**Prompt:** "remove also 4"
+
+**Outcome:** Removed strategy line 4 (docs vs. behaviour drift as findings); section 5 now has 3 lines.
+
+**My verdict:**
