@@ -1,0 +1,18 @@
+# Secrets
+.env
+
+# Dependencies
+node_modules/
+
+# Playwright output (traces record API request headers, including the key)
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Raw HAR recordings (contain cookies and session tokens)
+docs/har/raw/
+*.har
+
+# Assignment text (not published)
+HA_description.txt
