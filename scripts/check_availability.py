@@ -1,7 +1,7 @@
 import requests
 
-API_KEY = "<WIX_API_KEY>"  # paste the key locally; never commit it
-DOMAIN = "<DOMAIN>"  # e.g. google.com
+API_KEY = ""
+DOMAIN = "mybakery.test"  # e.g. google.com
 
 response = requests.get(
     "https://www.wixapis.com/domain-search/v2/check-domain-availability",
