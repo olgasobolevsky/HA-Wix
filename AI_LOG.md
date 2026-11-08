@@ -384,3 +384,203 @@
 **Outcome:** Removed strategy line 4 (docs vs. behaviour drift as findings); section 5 now has 3 lines.
 
 **My verdict:**
+
+## 2026-11-08: Playwright skill: failure analysis
+
+**Prompt:** "add in 3. if fail analyze the reason for the failure and suggest the fix." (about the "Flow — one test at a time" list in the playwright skill)
+
+**Outcome:** `.claude/skills/playwright/SKILL.md` flow step 3 now reads: "Report pass / fail. If it fails, analyze the reason for the failure and suggest the fix."
+
+**My verdict:**
+
+## 2026-11-08: Playwright skill made general
+
+**Prompt:** "I want to rewrite the Playwright skill to be general, not specific to this task. Show me the specific instructions in the skill one by one and suggeststion how to generalize it". Then: "The tests should come from the TEST_PLAN.md. You are right about ids"; "show me an example of project.md"; asked how the skill finds elements by role or label; "add it" (live lookup).
+
+**Outcome:**
+- Listed 21 specific instructions with a generic rule for each, in the approved plan.
+- `.claude/skills/playwright/SKILL.md` is now generic. `TEST_PLAN.md` stays as the fixed test source.
+- New `.claude/skills/playwright/project.md` holds this repo's values: ID format, execution types, areas and tags, `automation/`, config, API call budget, UI notes, test data, forbidden actions. Same split as `test-plan/decisions.md`.
+- Added: read `project.md` first; a live element lookup with `locator.ariaSnapshot()` as the third locator source (on for this repo); a generic rule against attaching or committing traces from tests that send a secret.
+- `project.md` config values checked against `automation/playwright.config.ts` and `package.json`.
+- The live lookup has not been exercised yet; no test code changed and Playwright was not run.
+
+**My verdict:**
+
+## 2026-11-08: project.md: mandatory and additional fields
+
+**Prompt:** "about project.md - add comment with what are mandatory and what are additional fields that should be in this file"
+
+**Outcome:**
+- Added an HTML comment at the top of `.claude/skills/playwright/project.md`, under the intro line.
+- Mandatory: the fields `SKILL.md` has no default for (case ID format, automatable types, feature areas, run command, Playwright projects, secrets or "none", forbidden actions or "none").
+- Additional: not automatable types, cross-area rules, test root, helpers, API call budget, UI notes, live lookup, test data and state.
+
+**My verdict:**
+
+## 2026-11-08: Playwright skill: stop on missing mandatory fields
+
+**Prompt:** "yes add the rule" (stop and ask when a mandatory field in `project.md` is missing)
+
+**Outcome:** `.claude/skills/playwright/SKILL.md`, "Project values": the skill now stops and asks if `project.md` or any field it lists as mandatory is missing.
+
+**My verdict:**
+
+## 2026-11-08: Playwright skill: readability fixes
+
+**Prompt:** "apply fixes:" followed by the "What to fix" list from my review of the skill (7 points: misplaced rules, no example, vague step 2, no report format, missing pre-checks, awkward wording, few reasons).
+
+**Outcome:**
+- `.claude/skills/playwright/SKILL.md` rewritten; the technical gaps from the review (failure mocking, `testIdAttribute`, API depth, strict mode, async state, fixture and auth details) were not part of the list and are not added.
+- Moved "fresh data", "assert on state", `expect.soft` and "forbidden actions" from UI to "Every test".
+- Added a short example test (tag, `test.step`, status before body, field / type check).
+- Flow is now 6 steps: check for existing helpers, write, type check, run only that test by ID, report in a fixed order, stop and wait.
+- Reworded the locator source list and "my review" to "the user's review".
+- Added a reason to: no retries, state assertions, `expect.soft`, fresh data, web-first assertions, no fixed waits, no `networkidle`, generated ids.
+- The example was not run; `tsc` and `-g` commands are examples and not checked against this repo.
+
+**My verdict:**
+
+## 2026-11-08: Playwright skill: remove "assert on state" rule
+
+**Prompt:** "This instructions should be removed. The detailed test case should define what exactly needs to be asserted." (about "Assert on state, not marketing copy")
+
+**Outcome:** Removed that line from "Every test" in `.claude/skills/playwright/SKILL.md`. What to assert is now defined only by the detailed test case.
+
+**My verdict:**
+
+## 2026-11-08: Playwright skill: failure mocking rule
+
+**Prompt:** Went over the technical coverage gaps of the skill ("lets go over the Teschnical coverage issues"), asked for item 1 to be explained, then "add rule 1" (simulate a failing dependency with `page.route`).
+
+**Outcome:**
+- Added to the UI section of `.claude/skills/playwright/SKILL.md`: simulate failures only with `page.route` inside the test, for browser tests only.
+- Four sub-rules: register the route before the action; match one URL pattern; never make a real call to the failing service; assert what the case says, and stop and ask if the expected message is undefined.
+- The other five gaps (test id attribute, API depth, strict-mode and force traps, async state, fixtures and authentication details) are not added yet; the per-file login question is still open.
+- The rule was not exercised: no test uses it yet.
+
+**My verdict:**
+
+## 2026-11-08: Test id attribute in project.md
+
+**Prompt:** "about 2. - the test-id attribute should be defined in project.md. In project.md description should be instrustion about this", then "the instruction in the skill should say to take the test-id as defined in project.md"
+
+**Outcome:**
+- `.claude/skills/playwright/project.md`: the header comment lists "Test id attribute" as an additional field (default `data-testid`), with the instruction to set `testIdAttribute` once in config. The UI notes now have one line: "Test id attribute: `data-hook`" (my first, longer draft was rejected; this short one was chosen).
+- Why `data-hook` is the likely value (source: `docs/scenarios/*.md`): 12 app-level elements carry it (cookie banner, hero card, accordion, alternatives); the 3 `data-testid` values are component internals (`stylablebutton-label`, `stylablebutton-icon`, `buttonContent`, `buttonElement`).
+- `.claude/skills/playwright/SKILL.md`, UI section: one line to take the test id attribute from `project.md` (default `data-testid`). My first draft also told the skill to set `testIdAttribute` in config; you asked for the simpler wording.
+- `automation/playwright.config.ts` is not changed, so `testIdAttribute` is not set there yet; no web test exists.
+
+**My verdict:**
+
+## 2026-11-08: Skill sets testIdAttribute in the config
+
+**Prompt:** "so the skill needs to set it in the /playwright.config.ts if it isn't set"
+
+**Outcome:** `.claude/skills/playwright/SKILL.md`, UI section: if `playwright.config.ts` doesn't set `testIdAttribute` to the attribute from `project.md`, the skill sets it once in the `use` block of the Playwright project that runs UI tests, before the first test that needs it. The config itself is not changed yet.
+
+**My verdict:**
+
+## 2026-11-08: Skill: tolerate extra response fields
+
+**Prompt:** "rule 1" (from the proposed API depth rules: tolerate extra fields; clean up created data)
+
+**Outcome:** `.claude/skills/playwright/SKILL.md`, API section: assert the required fields and their types, not exact body equality or "no extra fields", unless the case says so, with the reason. The cleanup rule was not added.
+
+**My verdict:**
+
+## 2026-11-08: Skill: strict-mode and force rules
+
+**Prompt:** "first 2" (from the proposed rules: no `.first()` / `.nth()` to silence strict mode; no `force: true`; no `test.only` / `page.pause`)
+
+**Outcome:** `.claude/skills/playwright/SKILL.md`, UI section: no `.first()` / `.nth()` to silence a strict-mode error unless the case says which item; no `force: true`, report a non-actionable element as a finding. The `test.only` / `page.pause` rule was not added.
+
+**My verdict:**
+
+## 2026-11-08: Skill: async state rule
+
+**Prompt:** "add 5" (the async state rule)
+
+**Outcome:** `.claude/skills/playwright/SKILL.md`, UI section: for a condition that is not an element's state, use `expect.poll` or `toPass` with an explicit timeout; never a sleep loop. The plan has no eventual-consistency case, so no test uses it yet.
+
+**My verdict:**
+
+## 2026-11-08: Skill: fixtures and authentication details
+
+**Prompt:** "once per run" (answer to: log in once per run or once per file; item 6 of the technical coverage gaps)
+
+**Outcome:**
+- `.claude/skills/playwright/SKILL.md`, Authentication: login is once per run, not per file or per test. Added that each test still gets a fresh context seeded from the saved `storageState` (or a fixture that sends the saved token), and that an expiring token is refreshed in the fixture, with a 401 failing the test with its status.
+- API: the fixtures live in `tests/helpers/fixtures.ts`, created by the first test that needs it; specs import `test` from it.
+- No effect on this repo yet: the API uses a static key, and API-01 / API-02 still use the built-in `request` fixture.
+
+**My verdict:**
+
+## 2026-11-08: Rewrite API-01 to the new skill rules
+
+**Prompt:** "lets rewrite the tests according to all new rules in skill"
+
+**Outcome:**
+- Followed the skill's one-test-at-a-time flow: only API-01 is rewritten; API-02 waits for review.
+- New `automation/tests/helpers/fixtures.ts`: `test.extend` with a `checkDomain(domain)` fixture that wraps the endpoint path on the authenticated `request` context. Auth header and base URL stay in `playwright.config.ts`, which the skill allows.
+- `automation/tests/api/api.spec.ts`: API-01 uses `checkDomain`. Steps keep the plan's wording, status asserted before the body, body checked with `toMatchObject`, so extra response fields don't fail the test. `test` and `expect` now come from the fixtures file; API-02 is unchanged otherwise and still has its own `CHECK` constant.
+- Run once (`-g "API-01"`): passed (api-setup + API-01, 2.4 s). No `tsconfig`, so no type check. The test was not made to fail, so "must be able to fail" is argued, not shown.
+
+**My verdict:**
+
+## 2026-11-08: Create tsconfig.json
+
+**Prompt:** "create tsconfig.json"
+
+**Outcome:**
+- New `automation/tsconfig.json`: ES2022, `module: node16`, strict, `esModuleInterop`, `skipLibCheck`, `noEmit`, `types: ["node"]`; includes `playwright.config.ts` and `tests`.
+- First draft used `moduleResolution: node`; the latest TypeScript rejected it (TS5108), so it is replaced by `module: node16`.
+- Checked with a temporary TypeScript (`npx -p typescript tsc -p automation --noEmit`): exit 0, no errors.
+- `typescript` is not a devDependency; `package.json` and the lock file are unchanged. Playwright was not rerun after adding the file.
+
+**My verdict:**
+
+## 2026-11-08: Add TypeScript as a dev dependency
+
+**Prompt:** "add it, but it changes package.json and the lock file" (add `typescript` as a dev dependency)
+
+**Outcome:**
+- `npm --prefix automation install --save-dev typescript`: `typescript` `^7.0.2` added to `automation/package.json` devDependencies; `automation/package-lock.json` updated.
+- The lock file grew by about 378 lines: it lists 20 platform packages (`@typescript/typescript-<os>-<cpu>`) next to `typescript`, though npm installed only the 2 for this machine.
+- Type check with the local TypeScript (`tsc -p automation --noEmit`): exit 0, no errors.
+- Nothing is committed.
+
+**My verdict:**
+
+## 2026-11-08: Rewrite API-02 to the new skill rules
+
+**Prompt:** "lets change the second test according to new instructions"
+
+**Outcome:**
+- `automation/tests/helpers/fixtures.ts`: added a `freeDomain` fixture (16 random lowercase letters + `.com`, fresh per test) built on `randomLabel()`.
+- `automation/tests/api/api.spec.ts`: API-02 uses `checkDomain` and `freeDomain`, same step wording as the plan, status before body, body checked with `toMatchObject`. The spec no longer has its own endpoint constant or the `randomLabel` import.
+- Type check (`tsc -p automation --noEmit`): exit 0. Run once (`-g "API-02"`): passed (api-setup + API-02, 2.2 s).
+- Not shown: that the test fails on a wrong answer. The name is never regenerated after a `false` answer, as the plan requires.
+
+**My verdict:**
+
+## 2026-11-08: API-02 step title shows the generated name
+
+**Prompt:** "add in the title of the step instead of<random name> the value of freeDomain"
+
+**Outcome:** `automation/tests/api/api.spec.ts`: the API-02 step 1 title now contains the `freeDomain` value instead of `<random name>.com`, so the report shows the name that was checked. The `<WIX_API_KEY>` placeholder stays; the key is never in the title. Type check exit 0; run once, passed (2.2 s).
+
+**My verdict:**
+
+## 2026-11-08: Playwright skill: fixtures and reused authentication
+
+**Prompt:** "Add some more api instructions: 1. Use Playwright fixtures instead of global state. Wrap the authenticated APIRequestContext, base URL and data factories in custom fixtures. This gives you dependency injection, automatic teardown and one place to change config. 2. Authenticate once and reuse the session. Log in in a setup project or global setup, save the token or storageState, and reuse it. Logging in before every test is slow and can trip rate limits. (this can be general, not only api?) 3." (item 3 was empty)
+
+**Outcome:**
+- `.claude/skills/playwright/SKILL.md`, API section: added rule 1, with the fixtures in one file in `tests/helpers/`.
+- New "Authentication (UI and API)" section: rule 2, placed outside API because `storageState` also serves browser tests.
+- Added two points to rule 2: the saved state file is a secret, and the rule doesn't apply without a login step (static API key).
+- Reconciled two existing lines: Isolation now allows custom fixtures built on the built-in ones; secrets are set once "in config or in the authenticated fixture".
+- Existing tests were not changed.
+
+**My verdict:**
